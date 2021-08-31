@@ -4,17 +4,7 @@
 using namespace std;
 
 bool circollider(double xf, double xi, double yf, double yi, double r1, double r2, double vi) {
-    int soma1 = pow(xi - xf,2);
-    int soma2 = pow(yi - yf,2);
-
-    if (soma1 < 0) {
-        soma1 *= -1;
-    }
-    if (soma2 < 0) {
-        soma2 *= -1;
-    }
-
-    return sqrt(soma1 + soma2) <= r1 + r2 - vi * 1.5 ; 
+    return sqrt(pow(xi - xf,2) + pow(yi - yf,2)) <= r1 + r2 - vi * 1.5 ; 
 }
 
 int main() {
