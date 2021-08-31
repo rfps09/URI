@@ -41,6 +41,11 @@ int main() {
     else {
         printf("0 0\n");
     }
-
+    
+    for (x = 0; x < n; x++) {
+        free(Vector[x]);
+    }
+    free(Vector);
+    
     return 0;
 }
