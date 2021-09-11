@@ -61,6 +61,7 @@ void quickSort(long long int *values, int left, int right) {
 		quickSort(values, index_pivot + 1, right);
 	}
 }
+
 int main() {
     int n = 0, i = 0, count = 0;
     long long int num[20000];
@@ -82,7 +83,7 @@ int main() {
 
         quickSort(numSort, 0,n-1);
 
-        printf("%d %d\n", numSort[n-1], numSort[n-n]);
+        printf("%lld %lld\n", numSort[n-1], numSort[n-n]);
     }
 
     return 0;
