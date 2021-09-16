@@ -7,13 +7,13 @@ int main() {
     
     scanf("%d%d%d", &h, &z, &l);
     
-    if (h < z && z < l) {
+    if ( (h < z && z < l) || (l < z && z < h) ) {
         printf("zezinho\n");
     }
-    else if (h > z && z < l) {
+    else if ( (h < l && l < z) || (z < l && l < h) ) {
         printf("luisinho\n");
     }
-    else if (h < z && z > l){
+    else if ( (z < h && h < l) || (l < h && h < z) ){
         printf("huguinho\n");
     }
  
