@@ -3,11 +3,7 @@
 #include <map>
 
 using namespace std;
- 
-const int MAXN = 1E6;
- 
-int vetor[MAXN];
- 
+
 int main() {
     int n = 0, m = 0, k = 0, v = 0;
     map<int, vector<int>> mymap;
@@ -31,6 +27,5 @@ int main() {
         }
         mymap.clear();
     }
- 
-	return 0;
+    return 0;
 }
