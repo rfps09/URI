@@ -14,9 +14,11 @@ int custo;
 vector<pii> grafinho[MAXN];
 set<pii> caminhos;
 set<pii> mc;
-set<int> visitados;
+int visitados[MAXN];
 
-void dfs(int x, int cost,int diff, int count, set<int> visited) {
+void dfs(int x, int cost,int diff, int count) {
+    visitados[x] = 1;
+
     for(int i = 0; i < grafinho[x].size(); i++) {
         pii y = grafinho[x][i];
         
@@ -24,20 +26,18 @@ void dfs(int x, int cost,int diff, int count, set<int> visited) {
         int costo = cost+y.second;
         int JgDiff = diff;
         int contador = count;
-        set<int> visit = visited;
 
         if(mc.find(pii(x,no)) == mc.end()) JgDiff++;
 
         if(no == v) caminhos.insert(pii(JgDiff,costo));
-        else if(visit.insert(no).second == true)
-        dfs(no,costo, JgDiff, contador, visit);
+        else if(!visitados[no])
+        dfs(no,costo, JgDiff, contador);
     }
+
+    visitados[x] = 0;
 }
 
 int main() {
-    freopen("entrada.txt", "r", stdin);
-    freopen("saida.txt", "w", stdout);
-
     ios::sync_with_stdio(0);
     cin.tie(NULL);
     
@@ -57,9 +57,7 @@ int main() {
         if(mc.find(pii(k,d)) != mc.end()) custo-=w;
     }
 
-    visitados.insert(u);
-
-    dfs(u,custo,0,0, visitados);
+    dfs(u,custo,0,0);
 
     for(int i = 0; i < q; i++) {
         cin >> k >> d;
@@ -67,9 +65,6 @@ int main() {
              cout << "SIM" << endl;
         else cout << "NAO" << endl;
     }
-
-    fclose(stdin);
-    fclose(stdout);
 
     return 0;
 }
