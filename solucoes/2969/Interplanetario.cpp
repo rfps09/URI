@@ -11,8 +11,7 @@ const int INF = INT_MAX/2;
 
 int n,r,q;
 int x,y,d;
-int a,b,k,t;
-vector<pii> grafinho[MAXN];
+int a,b,k,t,l;
 map<int,vector<int>> graus;
 pii temps[MAXN];
 pii floyd[MAXN][MAXN][MAXN];
@@ -20,22 +19,11 @@ pii floyd[MAXN][MAXN][MAXN];
 int main() {
     freopen("entrada.txt", "r", stdin);
     freopen("saida.txt", "w", stdout);
-
+    
     ios::sync_with_stdio(0);
     cin.tie(NULL);
-
+    
     cin >> n >> r;
-
-    for(int i = 1; i <= n; i++) {
-        for(int j = 1; j <= n; j++) {
-            for(int l = 1; l <= n; l++){
-                if(i != j) {
-                    floyd[i][j][l].first = INF;
-                    floyd[i][j][l].second = INF;
-                }
-            }
-        }
-    }
 
     for(int i = 1; i <= n; i++) {
         cin >> x;
@@ -54,12 +42,21 @@ int main() {
         }
         rcount--;
     }
+    
+    for(int i = 0; i <= n; i++) {
+        for(int j = 0; j <= n; j++) {
+            for(int l = 0; l <= graus.size(); l++){
+                if(i != j) {
+                    floyd[i][j][l].first = INF;
+                    floyd[i][j][l].second = INF;
+                }
+            }
+        }
+    }
 
     for(int i = 0; i < r; i++) {
         cin >> x >> y >> d;
-        grafinho[x].push_back(pii(y,d));
-        grafinho[y].push_back(pii(x,d));
-        for(int j = 1; j <= n; j++) {
+        for(int j = 0; j <= graus.size(); j++) {
             floyd[x][y][j].first = d;
             floyd[y][x][j].first = d;
             floyd[x][y][j].second = d;
@@ -73,19 +70,13 @@ int main() {
         {
             for(int j = 1; j <= n; j++) 
             {
-                for(int l = 1; l <= n; l++) 
-                {
-                    if(temps[z].first <= l) 
-                    {
-                        if(floyd[i][j][l].first > floyd[i][z][l].first + floyd[z][j][l].first) 
-                        floyd[i][j][l].first = floyd[i][z][l].first + floyd[z][j][l].first;
-                    }
-                    if(temps[z].second <= l) 
-                    {
-                        if(floyd[i][j][l].second > floyd[i][z][l].second + floyd[z][j][l].second) 
-                        floyd[i][j][l].second = floyd[i][z][l].second + floyd[z][j][l].second;
-                    }   
-                }
+                l = temps[z].first;
+                floyd[i][j][l].first = min(floyd[i][j][l-1].first,floyd[i][z][l].first + floyd[z][j][l].first);
+                floyd[i][j][l].first = min(floyd[i][j][l+1].first,floyd[i][z][l].first + floyd[z][j][l].first);
+                
+                l = temps[z].second;
+                floyd[i][j][l].second = min(floyd[i][j][l-1].second,floyd[i][z][l].second + floyd[z][j][l].second);
+                floyd[i][j][l].second = min(floyd[i][j][l+1].second,floyd[i][z][l].second + floyd[z][j][l].second);
             }
         }
     }
@@ -96,12 +87,12 @@ int main() {
         cin >> a >> b >> k >> t;
 
         if(t && floyd[a][b][k].second != INF)
-            cout << floyd[a][b][k].second << "\n";
+            cout << floyd[a][b][k].second << endl;
         else if(!t && floyd[a][b][k].first != INF)
-            cout << floyd[a][b][k].first << "\n";
-        else cout << "-1" << "\n";
+            cout << floyd[a][b][k].first << endl;
+        else cout << "-1" << endl;
     }
-
+    
     fclose(stdin);
     fclose(stdout);
 
