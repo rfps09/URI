@@ -21,6 +21,9 @@ int main() {
     freopen("entrada.txt", "r", stdin);
     freopen("saida.txt", "w", stdout);
 
+    ios::sync_with_stdio(0);
+    cin.tie(NULL);
+
     cin >> n >> r;
 
     for(int i = 1; i <= n; i++) {
