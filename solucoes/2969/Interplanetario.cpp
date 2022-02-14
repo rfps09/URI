@@ -11,7 +11,7 @@ const int INF = INT_MAX/2;
 
 int n,r,q;
 int x,y,d;
-int a,b,k,t,l;
+int a,b,k,t;
 map<int,vector<int>> graus;
 pii temps[MAXN];
 pii floyd[MAXN][MAXN][MAXN];
@@ -24,6 +24,17 @@ int main() {
     cin.tie(NULL);
     
     cin >> n >> r;
+
+    for(int i = 1; i <= n; i++) {
+        for(int j = 1; j <= n; j++) {
+            for(int l = 1; l <= n; l++){
+                if(i != j) {
+                    floyd[i][j][l].first = INF;
+                    floyd[i][j][l].second = INF;
+                }
+            }
+        }
+    }
 
     for(int i = 1; i <= n; i++) {
         cin >> x;
@@ -42,21 +53,10 @@ int main() {
         }
         rcount--;
     }
-    
-    for(int i = 0; i <= n; i++) {
-        for(int j = 0; j <= n; j++) {
-            for(int l = 0; l <= graus.size(); l++){
-                if(i != j) {
-                    floyd[i][j][l].first = INF;
-                    floyd[i][j][l].second = INF;
-                }
-            }
-        }
-    }
 
     for(int i = 0; i < r; i++) {
         cin >> x >> y >> d;
-        for(int j = 0; j <= graus.size(); j++) {
+        for(int j = 1; j <= n; j++) {
             floyd[x][y][j].first = d;
             floyd[y][x][j].first = d;
             floyd[x][y][j].second = d;
@@ -70,13 +70,19 @@ int main() {
         {
             for(int j = 1; j <= n; j++) 
             {
-                l = temps[z].first;
-                floyd[i][j][l].first = min(floyd[i][j][l-1].first,floyd[i][z][l].first + floyd[z][j][l].first);
-                floyd[i][j][l].first = min(floyd[i][j][l+1].first,floyd[i][z][l].first + floyd[z][j][l].first);
-                
-                l = temps[z].second;
-                floyd[i][j][l].second = min(floyd[i][j][l-1].second,floyd[i][z][l].second + floyd[z][j][l].second);
-                floyd[i][j][l].second = min(floyd[i][j][l+1].second,floyd[i][z][l].second + floyd[z][j][l].second);
+                for(int l = 1; l <= graus.size(); l++) 
+                {
+                    if(temps[z].first <= l) 
+                    {
+                        if(floyd[i][j][l].first > floyd[i][z][l].first + floyd[z][j][l].first) 
+                        floyd[i][j][l].first = floyd[i][z][l].first + floyd[z][j][l].first;
+                    }
+                    if(temps[z].second <= l) 
+                    {
+                        if(floyd[i][j][l].second > floyd[i][z][l].second + floyd[z][j][l].second) 
+                        floyd[i][j][l].second = floyd[i][z][l].second + floyd[z][j][l].second;
+                    }   
+                }
             }
         }
     }
