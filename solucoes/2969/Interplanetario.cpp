@@ -1,6 +1,6 @@
 #include <iostream>
 #include <vector>
-#include <map>
+#include <algorithm>
 #include <climits>
 
 using namespace std;
@@ -12,9 +12,9 @@ const int INF = INT_MAX/2;
 int n,r,q;
 int x,y,d;
 int a,b,k,t;
-map<int,vector<int>> graus;
 pii temps[MAXN];
-pii floyd[MAXN][MAXN][MAXN];
+int frio[MAXN][MAXN][MAXN];
+int calor[MAXN][MAXN][MAXN];
 
 int main() {
     freopen("entrada.txt", "r", stdin);
@@ -25,64 +25,47 @@ int main() {
     
     cin >> n >> r;
 
-    for(int i = 1; i <= n; i++) {
-        for(int j = 1; j <= n; j++) {
-            for(int l = 1; l <= n; l++){
+    for(int i = 0; i <= n; i++) {
+        for(int j = 0; j <= n; j++) {
+            for(int l = 0; l <= n; l++){
                 if(i != j) {
-                    floyd[i][j][l].first = INF;
-                    floyd[i][j][l].second = INF;
+                    frio[i][j][l] = INF;
+                    calor[i][j][l] = INF;
                 }
             }
         }
     }
 
-    for(int i = 1; i <= n; i++) {
-        cin >> x;
-        graus[x].push_back(i);
-    }
-
-    map<int,vector<int>>::iterator it;
-    int count = 0;
-    int rcount = graus.size();
-
-    for(it = graus.begin(); it != graus.end(); it++) {
-        count++;
-        for(int i = 0; i < it->second.size(); i++) {
-            temps[it->second[i]].first = count;
-            temps[it->second[i]].second = rcount;
-        }
-        rcount--;
+    for(int i = 0; i < n; i++) {
+        cin >> temps[i].first;
+        temps[i].second = i+1;
     }
 
     for(int i = 0; i < r; i++) {
         cin >> x >> y >> d;
-        for(int j = 1; j <= n; j++) {
-            floyd[x][y][j].first = d;
-            floyd[y][x][j].first = d;
-            floyd[x][y][j].second = d;
-            floyd[y][x][j].second = d;
+    
+        frio[x][y][0] = d;
+        frio[y][x][0] = d;
+        calor[x][y][0] = d;
+        calor[y][x][0] = d;
+    }
+
+    sort(temps, temps+n);
+
+    for(int z = 1; z <= n; z++) {
+        for(int i = 1; i <= n; i++) {
+            for(int j = 1; j <= n; j++) {
+                frio[i][j][z] = min(frio[i][temps[z-1].second][z-1] + frio[temps[z-1].second][j][z-1], frio[i][j][z-1]);
+            }
         }
     }
 
-    for(int z = 1; z <= n; z++) 
-    {
-        for(int i = 1; i <= n; i++) 
-        {
-            for(int j = 1; j <= n; j++) 
-            {
-                for(int l = 1; l <= graus.size(); l++) 
-                {
-                    if(temps[z].first <= l) 
-                    {
-                        if(floyd[i][j][l].first > floyd[i][z][l].first + floyd[z][j][l].first) 
-                        floyd[i][j][l].first = floyd[i][z][l].first + floyd[z][j][l].first;
-                    }
-                    if(temps[z].second <= l) 
-                    {
-                        if(floyd[i][j][l].second > floyd[i][z][l].second + floyd[z][j][l].second) 
-                        floyd[i][j][l].second = floyd[i][z][l].second + floyd[z][j][l].second;
-                    }   
-                }
+    sort(temps, temps+n, greater());
+
+    for(int z = 1; z <= n; z++) {
+        for(int i = 1; i <= n; i++) {
+            for(int j = 1; j <= n; j++) {
+                calor[i][j][z] = min(calor[i][temps[z-1].second][z-1] + calor[temps[z-1].second][j][z-1], calor[i][j][z-1]);
             }
         }
     }
@@ -92,10 +75,10 @@ int main() {
     for(int i = 0; i < q; i++) {
         cin >> a >> b >> k >> t;
 
-        if(t && floyd[a][b][k].second != INF)
-            cout << floyd[a][b][k].second << endl;
-        else if(!t && floyd[a][b][k].first != INF)
-            cout << floyd[a][b][k].first << endl;
+        if(t && calor[a][b][k] != INF)
+            cout << calor[a][b][k] << endl;
+        else if(!t && frio[a][b][k] != INF)
+            cout << frio[a][b][k] << endl;
         else cout << "-1" << endl;
     }
     
