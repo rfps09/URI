@@ -1,106 +1,119 @@
 #include <iostream>
 #include <vector>
 #include <map>
+#include <algorithm>
+#include <functional>
 #include <climits>
-
+ 
 using namespace std;
-using pii = pair<int,int>;
-
+ 
 const int MAXN = 401;
+const int MAXQ = 1e5+1;
 const int INF = INT_MAX/2;
-
-int n,r,q;
+ 
+struct c {
+    int a,b,k,id;
+    c(int a, int b, int k, int id) {
+        this->a = a;
+        this->b = b;
+        this->k = k;
+        this->id = id;
+    }
+};
+ 
+int n,r;
 int x,y,d;
+int q;
 int a,b,k,t;
-map<int,vector<int>> graus;
-pii temps[MAXN];
-pii floyd[MAXN][MAXN][MAXN];
+int grafo[MAXN][MAXN];
+int grafinho[MAXN][MAXN];
+int ans[MAXQ];
+map<int,vector<int>> mytemps;
+vector<c> consultas[2];
+vector<int> temps;
+ 
+int comparer(c p, c o) {
+    return p.k < o.k;
+}
 
+void floyd(int T) {
+    for(int i = 1; i <= n; i++) {
+        for(int j = 1; j <= n; j++) {
+            grafinho[i][j] = grafo[i][j];
+        }
+    }
+ 
+    int count = 0;
+
+    for(int l = 0; l < consultas[T].size(); l++) {
+        c youTurn = consultas[T][l];
+        vector<int> tt;
+        
+        for(int i = count; i < youTurn.k; i++) {
+            if(i >= temps.size()) break;
+            for(int j = 0; j < mytemps[temps[i]].size(); j++) {
+                tt.push_back(mytemps[temps[i]][j]);
+            }
+        }
+     
+        for(int z = 0; z < tt.size(); z++) {
+            int v = tt[z];
+            for(int i = 1; i <= n; i++) {
+                for(int j = 1; j <= n; j++) {
+                    grafinho[i][j] = min(grafinho[i][v]+grafinho[v][j], grafinho[i][j]);
+                }
+            }
+        }
+        
+        count = youTurn.k;
+        ans[youTurn.id] = grafinho[youTurn.a][youTurn.b] != INF ? grafinho[youTurn.a][youTurn.b] : -1;
+    }
+}
+ 
 int main() {
-    freopen("entrada.txt", "r", stdin);
-    freopen("saida.txt", "w", stdout);
-    
     ios::sync_with_stdio(0);
     cin.tie(NULL);
     
     cin >> n >> r;
-
+ 
+    for(int i = 1; i <= n; i++) {
+        cin >> t;
+        mytemps[t].push_back(i);
+    }
+    
+    for(auto& z : mytemps) {
+        temps.push_back(z.first);
+    }
+ 
     for(int i = 1; i <= n; i++) {
         for(int j = 1; j <= n; j++) {
-            for(int l = 1; l <= n; l++){
-                if(i != j) {
-                    floyd[i][j][l].first = INF;
-                    floyd[i][j][l].second = INF;
-                }
-            }
+            grafo[i][j] = i == j ? 0 : INF;
         }
     }
-
-    for(int i = 1; i <= n; i++) {
-        cin >> x;
-        graus[x].push_back(i);
-    }
-
-    map<int,vector<int>>::iterator it;
-    int count = 0;
-    int rcount = graus.size();
-
-    for(it = graus.begin(); it != graus.end(); it++) {
-        count++;
-        for(int i = 0; i < it->second.size(); i++) {
-            temps[it->second[i]].first = count;
-            temps[it->second[i]].second = rcount;
-        }
-        rcount--;
-    }
-
+ 
     for(int i = 0; i < r; i++) {
         cin >> x >> y >> d;
-        for(int j = 1; j <= n; j++) {
-            floyd[x][y][j].first = d;
-            floyd[y][x][j].first = d;
-            floyd[x][y][j].second = d;
-            floyd[y][x][j].second = d;
-        }
+        grafo[x][y] = d;
+        grafo[y][x] = d;
     }
-
-    for(int z = 1; z <= n; z++) 
-    {
-        for(int i = 1; i <= n; i++) 
-        {
-            for(int j = 1; j <= n; j++) 
-            {
-                for(int l = 1; l <= graus.size(); l++) 
-                {
-                    if(temps[z].first <= l) 
-                    {
-                        if(floyd[i][j][l].first > floyd[i][z][l].first + floyd[z][j][l].first) 
-                        floyd[i][j][l].first = floyd[i][z][l].first + floyd[z][j][l].first;
-                    }
-                    if(temps[z].second <= l) 
-                    {
-                        if(floyd[i][j][l].second > floyd[i][z][l].second + floyd[z][j][l].second) 
-                        floyd[i][j][l].second = floyd[i][z][l].second + floyd[z][j][l].second;
-                    }   
-                }
-            }
-        }
-    }
-
+ 
     cin >> q;
     
     for(int i = 0; i < q; i++) {
         cin >> a >> b >> k >> t;
-
-        if(t && floyd[a][b][k].second != INF)
-            cout << floyd[a][b][k].second << endl;
-        else if(!t && floyd[a][b][k].first != INF)
-            cout << floyd[a][b][k].first << endl;
-        else cout << "-1" << endl;
+        consultas[t].push_back(c(a,b,k,i));
     }
     
-    fclose(stdin);
-    fclose(stdout);
-
+    sort(consultas[0].begin(), consultas[0].end(),comparer);
+    floyd(0);
+    
+    sort(temps.begin(), temps.end(), greater<int>());
+    sort(consultas[1].begin(), consultas[1].end(),comparer);
+    floyd(1);
+    
+    for(int i = 0; i < q; i++) {
+		cout << ans[i] << "\n";
+    }
+ 
     return 0;
 }
