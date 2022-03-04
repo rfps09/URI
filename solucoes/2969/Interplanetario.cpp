@@ -1,95 +1,119 @@
 #include <iostream>
 #include <vector>
+#include <map>
 #include <algorithm>
+#include <functional>
 #include <climits>
-
+ 
 using namespace std;
-using pii = pair<int,int>;
-
+ 
 const int MAXN = 401;
+const int MAXQ = 1e5+1;
 const int INF = INT_MAX/2;
-
-int n,r,q;
+ 
+struct c {
+    int a,b,k,id;
+    c(int a, int b, int k, int id) {
+        this->a = a;
+        this->b = b;
+        this->k = k;
+        this->id = id;
+    }
+};
+ 
+int n,r;
 int x,y,d;
+int q;
 int a,b,k,t;
-int carry;
-pii temps[MAXN];
-int frio[MAXN][MAXN][MAXN];
-int calor[MAXN][MAXN][MAXN];
+int grafo[MAXN][MAXN];
+int grafinho[MAXN][MAXN];
+int ans[MAXQ];
+map<int,vector<int>> mytemps;
+vector<c> consultas[2];
+vector<int> temps;
+ 
+int comparer(c p, c o) {
+    return p.k < o.k;
+}
 
+void floyd(int T) {
+    for(int i = 1; i <= n; i++) {
+        for(int j = 1; j <= n; j++) {
+            grafinho[i][j] = grafo[i][j];
+        }
+    }
+ 
+    int count = 0;
+
+    for(int l = 0; l < consultas[T].size(); l++) {
+        c youTurn = consultas[T][l];
+        vector<int> tt;
+        
+        for(int i = count; i < youTurn.k; i++) {
+            if(i >= temps.size()) break;
+            for(int j = 0; j < mytemps[temps[i]].size(); j++) {
+                tt.push_back(mytemps[temps[i]][j]);
+            }
+        }
+     
+        for(int z = 0; z < tt.size(); z++) {
+            int v = tt[z];
+            for(int i = 1; i <= n; i++) {
+                for(int j = 1; j <= n; j++) {
+                    grafinho[i][j] = min(grafinho[i][v]+grafinho[v][j], grafinho[i][j]);
+                }
+            }
+        }
+        
+        count = youTurn.k;
+        ans[youTurn.id] = grafinho[youTurn.a][youTurn.b] != INF ? grafinho[youTurn.a][youTurn.b] : -1;
+    }
+}
+ 
 int main() {
-    freopen("entrada.txt", "r", stdin);
-    freopen("saida.txt", "w", stdout);
-    
     ios::sync_with_stdio(0);
     cin.tie(NULL);
     
     cin >> n >> r;
-
-    for(int l = 0; l <= n; l++) {
-        for(int i = 0; i <= n; i++) {
-            for(int j = 0; j <= n; j++) {
-                if(i != j) {
-                    frio[i][j][l] = INF;
-                    calor[i][j][l] = INF;
-                }
-            }
+ 
+    for(int i = 1; i <= n; i++) {
+        cin >> t;
+        mytemps[t].push_back(i);
+    }
+    
+    for(auto& z : mytemps) {
+        temps.push_back(z.first);
+    }
+ 
+    for(int i = 1; i <= n; i++) {
+        for(int j = 1; j <= n; j++) {
+            grafo[i][j] = i == j ? 0 : INF;
         }
     }
-
-    for(int i = 0; i < n; i++) {
-        cin >> temps[i].first;
-        temps[i].second = i+1;
-    }
-
+ 
     for(int i = 0; i < r; i++) {
         cin >> x >> y >> d;
-    
-        frio[x][y][0] = d;
-        frio[y][x][0] = d;
-        calor[x][y][0] = d;
-        calor[y][x][0] = d;
+        grafo[x][y] = d;
+        grafo[y][x] = d;
     }
-
-    sort(temps, temps+n);
-    carry = 0;
-    for(int z = 1; z <= n; z++) {
-        for(int i = 1; i <= n; i++) {
-            for(int j = 1; j <= n; j++) {
-                frio[i][j][z-carry] = min(frio[i][temps[z-1].second][z-1-carry] + frio[temps[z-1].second][j][z-1-carry], frio[i][j][z-1-carry]);
-                frio[i][j][z-carry] = min(frio[i][temps[z-1].second][z-carry] + frio[temps[z-1].second][j][z-carry], frio[i][j][z-carry]);
-            }
-        }
-        if(temps[z-1].first == temps[z].first) carry++;
-    }
-
-    sort(temps, temps+n, greater());
-
-    carry = 0;
-    for(int z = 1; z <= n; z++) {
-        for(int i = 1; i <= n; i++) {
-            for(int j = 1; j <= n; j++) {
-                calor[i][j][z-carry] = min(calor[i][temps[z-1].second][z-1-carry] + calor[temps[z-1].second][j][z-1-carry], calor[i][j][z-1-carry]);
-                calor[i][j][z-carry] = min(calor[i][temps[z-1].second][z-carry] + calor[temps[z-1].second][j][z-carry],calor[i][j][z-carry]);
-            }
-        }
-        if(temps[z-1].first == temps[z].first) carry++;
-    }
-
+ 
     cin >> q;
     
     for(int i = 0; i < q; i++) {
         cin >> a >> b >> k >> t;
-
-        if(t && calor[a][b][k] != INF)
-            cout << calor[a][b][k] << endl;
-        else if(!t && frio[a][b][k] != INF)
-            cout << frio[a][b][k] << endl;
-        else cout << "-1" << endl;
+        consultas[t].push_back(c(a,b,k,i));
     }
     
-    fclose(stdin);
-    fclose(stdout);
-
+    sort(consultas[0].begin(), consultas[0].end(),comparer);
+    floyd(0);
+    
+    sort(temps.begin(), temps.end(), greater<int>());
+    sort(consultas[1].begin(), consultas[1].end(),comparer);
+    floyd(1);
+    
+    for(int i = 0; i < q; i++) {
+		cout << ans[i] << "\n";
+    }
+ 
     return 0;
 }
