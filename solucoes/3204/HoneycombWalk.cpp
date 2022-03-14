@@ -10,16 +10,33 @@ const int MAXG = 1e4;
 int sum = 2;
 vector<int> grafinho[MAXG];
 int visited[MAXG][15];
-int ans[15];
+int res[15];
+
+int dfsCPY(int v, int count) {
+    if(!count) {
+        return v == 1;
+    }
+
+    if(visited[v][count] != -1)
+    return visited[v][count];
+
+    int ans = 0;
+    for(int i = 0; i < grafinho[v].size(); i++) 
+    ans += dfsCPY(grafinho[v][i], count-1);
     
-void dfs(int v, int count) {
-    if(v == 1) ans[count]++;
+    visited[v][count] = ans;
+
+    return ans;
+}
+    
+void dfsRFPS(int v, int count) {
+    if(v == 1) res[count]++;
 
     if(count < 10) {
         for(int i = 0; i < grafinho[v].size(); i++) {
             int atual = grafinho[v][i];
 
-            dfs(atual,count+1);
+            dfsRFPS(atual,count+1);
         }
     }
 }
@@ -100,16 +117,6 @@ int main() {
             visited[i][j] = -1;
         }
     }
-
-    dfs(1,0);
-
-    for(int i = 1; i < 38; i++) {
-        cout << "V" << i << ": ";
-        for(int j = 0; j < grafinho[i].size(); j++) {
-            cout << grafinho[i][j] << " ";
-        }
-        cout << "\n";
-    }
     
     int t = 0;
     cin >> t;
@@ -117,7 +124,7 @@ int main() {
     for(int i = 0; i < t; i++) {
         int n;
         cin >> n;
-        cout << ans[n] << endl;
+        cout << dfsCPY(1,n) << endl;
     }
     
     fclose(stdin);
