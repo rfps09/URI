@@ -32,7 +32,7 @@ int dfsCPY(int v, int count) {
 void dfsRFPS(int v, int count) {
     if(v == 1) res[count]++;
 
-    if(count < 10) {
+    if(count < 14) {
         for(int i = 0; i < grafinho[v].size(); i++) {
             int atual = grafinho[v][i];
 
