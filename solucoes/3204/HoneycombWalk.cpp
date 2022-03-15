@@ -127,5 +127,8 @@ int main() {
         cout << dfsCPY(1,n) << endl;
     }
     
+    fclose(stdin);
+    fclose(stdout);
+    
     return 0;
 }
