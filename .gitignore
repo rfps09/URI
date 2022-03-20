@@ -1,5 +1,4 @@
-entrada.txt
-saida.txt
+*.txt
 main.exe
 .vscode
 main
