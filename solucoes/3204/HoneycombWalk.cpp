@@ -10,35 +10,23 @@ const int MAXG = 1e4;
 int sum = 2;
 vector<int> grafinho[MAXG];
 int visited[MAXG][15];
-int res[15];
 
-int dfsCPY(int v, int count) {
-    if(!count) {
-        return v == 1;
-    }
+int dfs(int v, int count) {
+    if(count == 0) return v==1;
 
-    if(visited[v][count] != -1)
-    return visited[v][count];
+    if(visited[v][count] != -1) return visited[v][count];
 
     int ans = 0;
-    for(int i = 0; i < grafinho[v].size(); i++) 
-    ans += dfsCPY(grafinho[v][i], count-1);
-    
+
+    for(int i = 0; i < grafinho[v].size(); i++) {
+        int atual = grafinho[v][i];
+
+        ans += dfs(atual,count-1);
+    }
+
     visited[v][count] = ans;
 
     return ans;
-}
-    
-void dfsRFPS(int v, int count) {
-    if(v == 1) res[count]++;
-
-    if(count < 14) {
-        for(int i = 0; i < grafinho[v].size(); i++) {
-            int atual = grafinho[v][i];
-
-            dfsRFPS(atual,count+1);
-        }
-    }
 }
 
 int an(int a1, int n, int r) {
@@ -51,9 +39,6 @@ int paPlusTwo(int a1, int n, int r) {
 }
     
 int main() {
-    freopen("entrada.txt", "r", stdin);
-    freopen("saida.txt", "w", stdout);
-    
     ios::sync_with_stdio(0);
     cin.tie(NULL);
     
@@ -124,11 +109,8 @@ int main() {
     for(int i = 0; i < t; i++) {
         int n;
         cin >> n;
-        cout << dfsCPY(1,n) << endl;
+        cout << dfs(1,n) << endl;
     }
-    
-    fclose(stdin);
-    fclose(stdout);
     
     return 0;
 }
