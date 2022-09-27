@@ -3,3 +3,5 @@ main.exe
 .vscode
 main
 *.exe
+*.out
+a
