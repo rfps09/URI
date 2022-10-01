@@ -19,6 +19,7 @@ int main() {
             i_aux=i;
 
             for(int j=0; j<word_2.length(); j++) {
+                if(i_aux > word_1.length()) break;
                 if(word_1[i_aux] == word_2[j]) {
                     i_aux++;
                     count++;
